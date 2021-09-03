@@ -9,10 +9,8 @@
 
 #ifndef DEFINED_FLOAT_PRECISION
 precision mediump int;
-precision mediump   float;
-precision mediump   vec2;
-precision mediump   vec3;
-precision mediump   vec4;
+precision mediump float;
+/*
 precision mediump   vec2;
 precision mediump   vec3;
 precision mediump   vec4;
@@ -25,9 +23,10 @@ precision mediump   uvec4;
 precision mediump   mat3;
 precision mediump   mat4;
 precision mediump   mat4x3;
-precision mediump   mat3;
-precision mediump   mat4;
-precision mediump   mat4x3;
+*/
+precision mediump sampler2D;
+precision mediump sampler3D;
+precision mediump samplerCube;
 #define DEFINED_FLOAT_PRECISION
 #endif
 
@@ -182,7 +181,7 @@ void	sincos(float x, out float s, out float c) { s = sin(x); c = cos(x); }
 
 float 	calc_cyclic 	(float x)				
 {
-	float 	phase 	= 1/(2*3.141592653589);
+	float 	phase 	= 1.0 / (2.0 *3.141592653589);
 	float 	sqrt2	= 1.4142136;
 	float 	sqrt2m2	= 2.8284271;
 	float 	f 	= sqrt2m2*frac(x)-sqrt2;	// [-sqrt2 .. +sqrt2] !No changes made, but this controls the grass wave (which is violent if I must say)
