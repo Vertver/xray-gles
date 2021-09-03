@@ -43,6 +43,14 @@ bool TestOpenGLSupport()
     if (!windowTest.successful())
         return false;
 
+#ifdef GLES_RENDERER
+    if (!gladLoadGLES2Loader(SDL_GL_GetProcAddress))
+    {
+        Log("~ Could not initialize glad.");
+        return false;
+    }
+#else
+
     if (glewInit() != GLEW_OK)
     {
         Log("~ Could not initialize glew.");
@@ -54,6 +62,8 @@ bool TestOpenGLSupport()
         Log("~ GL_ARB_separate_shader_objects not supported");
         return false;
     }
+#endif
+
     return true;
 }
 

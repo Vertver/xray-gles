@@ -7,6 +7,26 @@
 #include "glHW.h"
 #include "xrEngine/XR_IOConsole.h"
 
+#ifdef GLES_RENDERER
+// PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
+// PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOES;
+// PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
+// PFNGLISVERTEXARRAYOESPROC glIsVertexArrayOES;
+
+//GLAPI void APIENTRY glUseProgramStages(GLuint pipeline, GLbitfield stages, GLuint program);
+//GLAPI void APIENTRY glActiveShaderProgram(GLuint pipeline, GLuint program);
+//GLAPI GLuint APIENTRY glCreateShaderProgramv(GLenum type, GLsizei count, const GLchar* const* strings);
+//GLAPI void APIENTRY glBindProgramPipeline(GLuint pipeline);
+//GLAPI void APIENTRY glDeleteProgramPipelines(GLsizei n, const GLuint* pipelines);
+//GLAPI void APIENTRY glGenProgramPipelines(GLsizei n, GLuint* pipelines);
+// 
+// PFNGLUSEPROGRAMSTAGESPROC glUseProgramStages;
+// typedef void(GL_APIENTRYP PFNGLACTIVESHADERPROGRAMEXTPROC)(GLuint pipeline, GLuint program);
+// typedef GLuint(GL_APIENTRYP PFNGLCREATESHADERPROGRAMVEXTPROC)(GLenum type, GLsizei count, const GLchar** strings);
+// typedef void(GL_APIENTRYP PFNGLBINDPROGRAMPIPELINEEXTPROC)(GLuint pipeline);
+// typedef void(GL_APIENTRYP PFNGLDELETEPROGRAMPIPELINESEXTPROC)(GLsizei n, const GLuint* pipelines);
+#endif
+
 CHW HW;
 
 void CALLBACK OnDebugCallback(GLenum /*source*/, GLenum /*type*/, GLuint id, GLenum severity, GLsizei /*length*/,
@@ -104,19 +124,24 @@ void CHW::CreateDevice(SDL_Window* hWnd)
         return;
     }
 
+#ifndef GLES_RENDERER
     // Initialize OpenGL Extension Wrangler
     if (glewInit() != GLEW_OK)
     {
         Msg("Could not initialize glew.");
         return;
     }
+#endif
 
     Console->Execute("rs_v_sync apply");
 
 #ifdef DEBUG
     CHK_GL(glEnable(GL_DEBUG_OUTPUT));
+#ifndef GLES_RENDERER
     CHK_GL(glDebugMessageCallback((GLDEBUGPROC)OnDebugCallback, nullptr));
+#endif
 #endif // DEBUG
+
 
     int iMaxVTFUnits, iMaxCTIUnits;
     glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &iMaxVTFUnits);
@@ -134,7 +159,12 @@ void CHW::CreateDevice(SDL_Window* hWnd)
     Msg("* GPU OpenGL shading language version: %s", ShadingVersion);
     Msg("* GPU OpenGL VTF units: [%d] CTI units: [%d]", iMaxVTFUnits, iMaxCTIUnits);
 
+#ifndef GLES_RENDERER
     ShaderBinarySupported = GLEW_ARB_get_program_binary;
+#else
+    ShaderBinarySupported = true;
+#endif
+
     ComputeShadersSupported = false; // XXX: Implement compute shaders support
 
     Caps.fTarget = D3DFMT_A8R8G8B8;
@@ -167,8 +197,21 @@ void CHW::Reset()
 
 void CHW::SetPrimaryAttributes()
 {
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#ifdef GLES_RENDERER
+    SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+#else
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
@@ -183,6 +226,7 @@ void CHW::SetPrimaryAttributes()
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     }
+#endif
 }
 
 IRender::RenderContext CHW::GetCurrentContext() const
@@ -269,10 +313,14 @@ bool CHW::ThisInstanceIsGlobal() const
 
 void CHW::BeginPixEvent(pcstr name) const
 {
+#ifndef GLES_RENDERER
     glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, -1, name);
+#endif
 }
 
 void CHW::EndPixEvent() const
 {
+#ifndef GLES_RENDERER
     glPopDebugGroup();
+#endif
 }

@@ -2,10 +2,67 @@
 //  All comments by Nivenhbro are preceded by !
 /////////////////////////////////////////////////
 
-
 #ifndef SHARED_COMMON_H
 #define SHARED_COMMON_H
 
+#ifdef GLES_RENDERER
+
+#ifndef DEFINED_FLOAT_PRECISION
+precision mediump int;
+precision mediump   float;
+precision mediump   vec2;
+precision mediump   vec3;
+precision mediump   vec4;
+precision mediump   vec2;
+precision mediump   vec3;
+precision mediump   vec4;
+precision mediump   ivec2;
+precision mediump   ivec3;
+precision mediump   ivec4;
+precision mediump   uvec2;
+precision mediump   uvec3;
+precision mediump   uvec4;
+precision mediump   mat3;
+precision mediump   mat4;
+precision mediump   mat4x3;
+precision mediump   mat3;
+precision mediump   mat4;
+precision mediump   mat4x3;
+#define DEFINED_FLOAT_PRECISION
+#endif
+
+#define half        float
+#define half2       vec2
+#define half3       vec3
+#define half4       vec4
+#define float2      vec2
+#define float3      vec3
+#define float4      vec4
+#define int2        ivec2
+#define int3        ivec3
+#define int4        ivec4
+#define uint2       uvec2
+#define uint3       uvec3
+#define uint4       uvec4
+#define half3x3     mat3
+#define half4x4     mat4
+#define half3x4     mat4x3
+#define float3x3    mat3
+#define float4x4    mat4
+#define float3x4    mat4x3
+
+vec4	mul(int a,		 vec4 b)	{ return float(a) * b; }
+vec4	mul(float a,	 vec4 b)	{ return a * b; }
+vec3	mul(mat3 a,		 vec3 b)	{ return a * b; }
+vec3	mul(vec3 a,		 mat3 b)	{ return a * b; }
+mat3	mul(mat3 a,		 mat3 b)	{ return a * b; }
+vec4	mul(mat4 a,		 vec4 b)	{ return a * b; }
+vec4	mul(vec4 a,		 mat4 b)	{ return a * b; }
+mat4	mul(mat4 a,		 mat4 b)	{ return a * b; }
+vec3	mul(mat4x3 a,	 vec4 b)	{ return a * b; }
+vec3	mul(mat4x3 a,	 vec3 b)	{ return mat3(a) * b; }
+void	sincos(float x, out float s, out float c) { s = sin(x); c = cos(x); }
+#else
 #define half        float
 #define half2       vec2
 #define half3       vec3
@@ -37,6 +94,7 @@ mat4	mul(mat4 a,		mat4 b)	{ return a * b; }
 vec3	mul(mat4x3 a,	vec4 b)	{ return a * b; }
 vec3	mul(mat4x3 a,	vec3 b)	{ return mat3(a) * b; }
 void	sincos(float x, out float s, out float c) { s = sin(x); c = cos(x); }
+#endif
 
 #define lerp        mix
 #define frac        fract

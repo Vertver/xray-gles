@@ -121,6 +121,7 @@
     <ClCompile Include="..\xrRender_R2\r2_R_calculate.cpp" />
     <ClCompile Include="..\xrRender_R2\r2_R_lights.cpp" />
     <ClCompile Include="..\xrRender_R2\r2_R_render.cpp" />
+    <ClCompile Include="glad.cpp" />
     <ClCompile Include="gl_rendertarget_accum_direct.cpp" />
     <ClCompile Include="gl_rendertarget_accum_point.cpp" />
     <ClCompile Include="gl_rendertarget_accum_spot.cpp" />

@@ -66,8 +66,14 @@ void CRT::create(LPCSTR Name, u32 w, u32 h, D3DFORMAT f, u32 SampleCount /*= 1*/
     glGenTextures(1, &pRT);
     CHK_GL(glBindTexture(target, pRT));
     if (SampleCount > 1)
-        CHK_GL(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, SampleCount, glTextureUtils::ConvertTextureFormat(fmt), w,
-        h, GL_FALSE));
+    {
+#ifndef GLES_RENDERER
+        CHK_GL(glTexImage2DMultisample(
+            GL_TEXTURE_2D_MULTISAMPLE, SampleCount, glTextureUtils::ConvertTextureFormat(fmt), w, h, GL_FALSE));
+#else
+        R_ASSERT2(false, "texture multisampling is not allowed on OpenGL ES 3.1.");
+#endif
+    }
     else
         CHK_GL(glTexStorage2D(GL_TEXTURE_2D, 1, glTextureUtils::ConvertTextureFormat(fmt), w, h));
 

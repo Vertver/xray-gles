@@ -25,9 +25,13 @@ void CHWCaps::Update()
     geometry.dwRegisters = cnt;
     geometry.dwInstructions = 256;
     geometry.dwClipPlanes = _min(6, 15);
+#ifndef GLES_RENDERER
     geometry.bVTF =
-        (HW.OpenGLVersion >= std::make_pair(3, 0) || GLEW_ARB_texture_float)
-        && !strstr(Core.Params, "-novtf");
+        (HW.OpenGLVersion >= std::make_pair(3, 0) || GLEW_ARB_texture_float) && !strstr(Core.Params, "-novtf");
+#else
+    geometry.bVTF =
+        (HW.OpenGLVersion >= std::make_pair(3, 0) || GL_OES_texture_float) && !strstr(Core.Params, "-novtf");
+#endif
 
     // ***************** PIXEL processing
     raster_major = 4;

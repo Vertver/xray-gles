@@ -292,7 +292,13 @@ ICF void CBackend::Render(D3DPRIMITIVETYPE T, u32 baseV, u32 startV, u32 countV,
     stat.verts += countV;
     stat.polys += PC;
     constants.flush();
+
+#ifdef GLES_RENDERER
+    glDrawElements(Topology, iIndexCount, GL_UNSIGNED_SHORT, (void*)(startI * sizeof(GLushort)));
+#else
     CHK_GL(glDrawElementsBaseVertex(Topology, iIndexCount, GL_UNSIGNED_SHORT, (void*)(startI * sizeof(GLushort)), baseV));
+#endif
+
     PGO(Msg("PGO:DIP:%dv/%df", countV, PC));
 }
 

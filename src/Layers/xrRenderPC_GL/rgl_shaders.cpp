@@ -246,10 +246,19 @@ private:
         const size_t head_lines = 2; // "#version" line + name_comment line
         m_sources_lines = m_source.size() + options.size() + head_lines;
         m_sources = xr_alloc<pcstr>(m_sources_lines);
+
+#ifdef GLES_RENDERER
+#ifdef DEBUG
+        m_sources[0] = "#version 310 es\n#pragma optimize (off)\n";
+#else
+        m_sources[0] = "#version 310 es\n";
+#endif
+#else
 #ifdef DEBUG
         m_sources[0] = "#version 410\n#pragma optimize (off)\n";
 #else
         m_sources[0] = "#version 410\n";
+#endif
 #endif
         m_sources[1] = m_name_comment;
 
@@ -461,6 +470,10 @@ HRESULT CRender::shader_compile(pcstr name, IReader* fs, pcstr pFunctionName,
 
     // Geometry buffer optimization
     appendShaderOption(o.dx10_gbuffer_opt, "GBUFFER_OPTIMIZATION", "1");
+
+#ifdef GLES_RENDERER
+    options.add("GLES_RENDERER", "1");
+#endif
 
     // Shader Model 4.1
     appendShaderOption(o.dx10_sm4_1, "SM_4_1", "1");

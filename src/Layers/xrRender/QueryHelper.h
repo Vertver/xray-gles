@@ -30,10 +30,18 @@ IC HRESULT CreateQuery(GLuint* pQuery, D3D_QUERY type)
 
 IC HRESULT GetData(GLuint query, void* pData, u32 DataSize)
 {
+#ifndef GLES_RENDERER
     if (DataSize == sizeof(GLint64))
         CHK_GL(glGetQueryObjecti64v(query, GL_QUERY_RESULT, (GLint64*)pData));
     else
         CHK_GL(glGetQueryObjectiv(query, GL_QUERY_RESULT, (GLint*)pData));
+#else
+    if (DataSize == sizeof(GLint64))
+        R_ASSERT2(false, "OpenGL ES 3.1 doesn't support 64-bit query objects.");
+    else
+        CHK_GL(glGetQueryObjectuiv(query, GL_QUERY_RESULT, (GLuint*)pData));
+#endif
+
     return S_OK;
 }
 

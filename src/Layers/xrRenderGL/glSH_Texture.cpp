@@ -86,7 +86,12 @@ void CTexture::apply_theora(u32 dwStage)
         // Clear and map buffer for writing
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pBuffer);
         CHK_GL(glBufferData(GL_PIXEL_UNPACK_BUFFER, _w * _h * 4, nullptr, GL_STREAM_DRAW)); // Invalidate buffer
+
+#ifdef GLES_RENDERER
+        CHK_GL(pBits = (u32*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, _w * _h * 4, GL_WRITE_ONLY));
+#else
         CHK_GL(pBits = (u32*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY));
+#endif
 
         // Write to the buffer and copy it to the texture
         int _pos = 0;

@@ -19,16 +19,24 @@ inline std::pair<GLuint, GLuint> GLCompileShader(pcstr* buffer, size_t size, pcs
 
     GLuint program = glCreateProgram();
     R_ASSERT(program);
+#ifndef GLES_RENDERER
     CHK_GL(glObjectLabel(GL_PROGRAM, program, -1, name));
+#endif
     CHK_GL(glProgramParameteri(program, GL_PROGRAM_SEPARABLE, (GLint)GL_TRUE));
     if (HW.ShaderBinarySupported)
         CHK_GL(glProgramParameteri(program, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, (GLint)GL_TRUE));
 
     glAttachShader(program, shader);
+
+#ifndef GLES_RENDERER
     glBindFragDataLocation(program, 0, "SV_Target");
     glBindFragDataLocation(program, 0, "SV_Target0");
     glBindFragDataLocation(program, 1, "SV_Target1");
     glBindFragDataLocation(program, 2, "SV_Target2");
+#else
+    Msg("user-defined variables for fragment shader is not allowed");
+#endif
+
     glLinkProgram(program);
     glDetachShader(program, shader);
     glDeleteShader(shader);
@@ -46,13 +54,19 @@ inline std::pair<GLuint, GLuint> GLUseBinary(pcstr* buffer, size_t size, const G
 
     GLuint program = glCreateProgram();
     R_ASSERT(program);
+#ifndef GLES_RENDERER
     CHK_GL(glObjectLabel(GL_PROGRAM, program, -1, name));
+#endif
     CHK_GL(glProgramParameteri(program, GL_PROGRAM_SEPARABLE, (GLint)GL_TRUE));
 
+#ifndef GLES_RENDERER
     glBindFragDataLocation(program, 0, "SV_Target");
     glBindFragDataLocation(program, 0, "SV_Target0");
     glBindFragDataLocation(program, 1, "SV_Target1");
     glBindFragDataLocation(program, 2, "SV_Target2");
+#else
+    Msg("user-defined variables for fragment shader is not allowed");
+#endif
 
     glProgramBinary(program, *format, buffer, size);
     glGetProgramiv(program, GL_LINK_STATUS, &status);

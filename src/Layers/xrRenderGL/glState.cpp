@@ -233,8 +233,11 @@ void glState::UpdateSamplerState(u32 stage, u32 name, u32 value)
         break;
     case D3DSAMP_BORDERCOLOR: /* D3DCOLOR */
     {
+        // glSamplerParameterIuiv only acceptable from OpenGL ES 3.2
+#ifndef GLES_RENDERER
         GLuint color[] = {color_get_R(value), color_get_G(value), color_get_B(value), color_get_A(value)};
         CHK_GL(glSamplerParameterIuiv(m_samplerArray[stage], GL_TEXTURE_BORDER_COLOR, color));
+#endif
     }
         break;
     case D3DSAMP_MAGFILTER: /* D3DTEXTUREFILTER filter to use for magnification */
