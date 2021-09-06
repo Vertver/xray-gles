@@ -71,11 +71,54 @@ void CHW::OnAppDeactivate()
     }
 }
 
+#if defined(GLES_RENDERER) && defined(_WIN32)
+#define EGL_PLATFORM_ANGLE_ANGLE 0x3202
+#define EGL_PLATFORM_ANGLE_TYPE_ANGLE 0x3203
+#define EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE 0x3207
+#define EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE 0x3208
+#define EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE 0x320D
+#define EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE 0x320E
+
+typedef void* (*PFNEGLGETPROCADDRESSPROC)(const char* procname);
+typedef void* (*PFNEGLGETPLATFORMDISPLAYEXTPROC)(GLenum platform, void* native_display, const GLint* attrib_list);
+/*
+    #if defined(GLES_RENDERER) && defined(_WIN32)
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    SDL_GetWindowWMInfo(hWnd, &wmInfo);
+    HWND hwnd = wmInfo.info.win.window;
+    HDC hDC = GetDC(hwnd);
+
+    LoadLibraryA("libGLESv2.dll");
+    HMODULE hModule = LoadLibraryA("libEGL.dll");
+    R_ASSERT(hModule != INVALID_HANDLE_VALUE && hModule != nullptr);
+
+    PFNEGLGETPROCADDRESSPROC _getProcAddress =
+        reinterpret_cast<PFNEGLGETPROCADDRESSPROC>(GetProcAddress(hModule, "eglGetProcAddress"));
+
+    PFNEGLGETPLATFORMDISPLAYEXTPROC _eglGetPlatformDisplayEXT =
+        reinterpret_cast<PFNEGLGETPLATFORMDISPLAYEXTPROC>(_getProcAddress("eglGetPlatformDisplayEXT"));
+
+    const GLint anglePlatformAttributes[][5] = {
+        {EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE, 0x3038, 0, 0},
+        {1, 0x3038, 0, 0, 0}
+    };
+
+    const GLint* attributes = nullptr;
+    attributes = anglePlatformAttributes[1];
+
+    void* ret = _eglGetPlatformDisplayEXT(0x3202, hDC, attributes);
+#endif
+*/
+#endif
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 void CHW::CreateDevice(SDL_Window* hWnd)
 {
+
+
     m_window = hWnd;
 
     R_ASSERT(m_window);
@@ -137,6 +180,7 @@ void CHW::CreateDevice(SDL_Window* hWnd)
 
 #ifdef DEBUG
     CHK_GL(glEnable(GL_DEBUG_OUTPUT));
+    CHK_GL(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS));
 #ifndef GLES_RENDERER
     CHK_GL(glDebugMessageCallback((GLDEBUGPROC)OnDebugCallback, nullptr));
 #endif
@@ -162,7 +206,7 @@ void CHW::CreateDevice(SDL_Window* hWnd)
 #ifndef GLES_RENDERER
     ShaderBinarySupported = GLEW_ARB_get_program_binary;
 #else
-    ShaderBinarySupported = true;
+    ShaderBinarySupported = false;
 #endif
 
     ComputeShadersSupported = false; // XXX: Implement compute shaders support
@@ -210,6 +254,7 @@ void CHW::SetPrimaryAttributes()
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
 #else
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);

@@ -3,6 +3,23 @@
 #include "ResourceManager.h"
 
 #ifdef USE_OGL
+template <GLenum type>
+inline std::pair<GLuint, GLuint> GLCompileShaderWithoutLinking(pcstr* buffer, size_t size, pcstr name)
+{
+    GLint status{};
+
+    GLuint shader = glCreateShader(type);
+    R_ASSERT(shader);
+    glShaderSource(shader, size, buffer, nullptr);
+    glCompileShader(shader);
+
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+    if (GLboolean(status) == GL_FALSE)
+        return {shader, -1};
+
+    return {0, shader};
+}
+
 template<GLenum type>
 inline std::pair<GLuint, GLuint> GLCompileShader(pcstr* buffer, size_t size, pcstr name)
 {
@@ -42,9 +59,9 @@ inline std::pair<GLuint, GLuint> GLCompileShader(pcstr* buffer, size_t size, pcs
     glDeleteShader(shader);
 
     glGetProgramiv(program, GL_LINK_STATUS, &status);
-    if (GLboolean(status) == GL_FALSE)
-        return { -1, program };
-
+    if (GLboolean(status) == GL_FALSE) 
+        return {-1, program};
+    
     return { 0, program };
 }
 
@@ -273,7 +290,7 @@ struct ShaderTypeTraits<SPS>
 #endif
 
         return res;
-    }
+    } 
 
     static inline u32 GetShaderDest() { return RC_dest_pixel; }
 };
@@ -609,8 +626,7 @@ T* CResourceManager::CreateShader(cpcstr name, pcstr filename /*= nullptr*/, u32
 
         // Open file
         string_path cname;
-        strconcat(sizeof(cname), cname, GEnv.Render->getShaderPath(), shName,
-            ShaderTypeTraits<T>::GetShaderExt());
+        strconcat(sizeof(cname), cname, GEnv.Render->getShaderPath(), shName, ShaderTypeTraits<T>::GetShaderExt());
         FS.update_path(cname, "$game_shaders$", cname);
 
         // Try to open
@@ -644,17 +660,17 @@ T* CResourceManager::CreateShader(cpcstr name, pcstr filename /*= nullptr*/, u32
         ShaderTypeTraits<T>::GetCompilationTarget(c_target, c_entry, data);
 
 #if !defined(USE_DX9) && !defined(USE_OGL)
-#   ifdef NDEBUG
+#ifdef NDEBUG
         flags |= D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_OPTIMIZATION_LEVEL3;
-#   else
+#else
         flags |= D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | (xrDebug::DebuggerIsPresent() ? D3DCOMPILE_DEBUG : 0);
-#   endif
+#endif
 #elif defined(USE_DX9)
-#   ifdef NDEBUG
+#ifdef NDEBUG
         flags |= D3DXSHADER_PACKMATRIX_ROWMAJOR;
-#   else
+#else
         flags |= D3DXSHADER_PACKMATRIX_ROWMAJOR | (xrDebug::DebuggerIsPresent() ? D3DXSHADER_DEBUG : 0);
-#   endif
+#endif
 #endif
 
         // Compile

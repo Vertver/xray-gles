@@ -10,20 +10,6 @@
 #ifndef DEFINED_FLOAT_PRECISION
 precision mediump int;
 precision mediump float;
-/*
-precision mediump   vec2;
-precision mediump   vec3;
-precision mediump   vec4;
-precision mediump   ivec2;
-precision mediump   ivec3;
-precision mediump   ivec4;
-precision mediump   uvec2;
-precision mediump   uvec3;
-precision mediump   uvec4;
-precision mediump   mat3;
-precision mediump   mat4;
-precision mediump   mat4x3;
-*/
 precision mediump sampler2D;
 precision mediump sampler3D;
 precision mediump samplerCube;

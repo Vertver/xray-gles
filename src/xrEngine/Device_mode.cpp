@@ -39,13 +39,16 @@ void CRenderDevice::FillVideoModes()
     }
     vid_monitor_token.emplace_back(nullptr, -1);
 
-    const int display = SDL_GetWindowDisplayIndex(m_sdlWnd);
-    if (display != -1)
-        psDeviceMode.Monitor = display;
-    else
+    if (m_sdlWnd != nullptr)
     {
-        Log("! Failed to determine on which monitor the game is launched.");
-        Log("! SDL:", SDL_GetError());
+        const int display = SDL_GetWindowDisplayIndex(m_sdlWnd);
+        if (display != -1)
+            psDeviceMode.Monitor = display;
+        else
+        {
+            Log("! Failed to determine on which monitor the game is launched.");
+            Log("! SDL:", SDL_GetError());
+        }
     }
 
     SDL_DisplayMode current;
